@@ -1,0 +1,817 @@
+
+html_code = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects - William's Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --sidebar-bg: #1e1e1e;
+            --sidebar-hover: #2d2d2d;
+            --text-primary: #a0a0a0;
+            --text-active: #e0e0e0;
+            --main-bg: #121212;
+            --border-color: #2a2a2a;
+            --accent-color: #00d4aa;
+            --card-bg: #1a2332;
+            --card-border: #2d3a4a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Bar Loading Animation */
+        .bars-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--main-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .bars-animation.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .bar {
+            width: 8px;
+            height: 60px;
+            background: var(--accent-color);
+            margin: 0 4px;
+            border-radius: 4px;
+            animation: barWave 1.2s ease-in-out infinite;
+            animation-delay: calc(var(--i) * 0.1s);
+            opacity: 0.8;
+        }
+
+        @keyframes barWave {
+            0%, 100% {
+                transform: scaleY(0.3);
+                opacity: 0.3;
+            }
+            50% {
+                transform: scaleY(1);
+                opacity: 1;
+            }
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0 20px 0;
+            border-right: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-section {
+            text-align: center;
+            margin-bottom: 40px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .profile-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            border: 2px solid #3a3a3a;
+        }
+
+        .profile-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #d0d0d0;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-tagline {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            width: 100%;
+            list-style: none;
+            padding: 0 15px;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 4px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .nav-link:hover {
+            background-color: var(--sidebar-hover);
+            color: var(--text-active);
+        }
+
+        .nav-link.active {
+            background-color: var(--sidebar-hover);
+            color: var(--text-active);
+        }
+
+        .nav-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+        }
+
+        .nav-link:hover .nav-icon,
+        .nav-link.active .nav-icon {
+            opacity: 1;
+        }
+
+        .nav-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: currentColor;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 60px;
+            min-height: 100vh;
+        }
+
+        .projects-header {
+            margin-bottom: 50px;
+        }
+
+        .projects-header h1 {
+            font-size: 2.5rem;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .projects-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .projects-header p {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            max-width: 600px;
+            line-height: 1.6;
+            margin-top: 30px;
+        }
+
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-card:hover::before {
+            opacity: 1;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .project-folder {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-folder svg {
+            width: 32px;
+            height: 32px;
+            stroke: var(--accent-color);
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .project-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .project-link:hover {
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .project-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .project-title {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            margin-bottom: 12px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .project-description {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .project-tag {
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+        }
+
+        .project-tag::before {
+            content: '#';
+            opacity: 0.5;
+        }
+
+        /* Featured Project Banner */
+        .featured-project {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, var(--card-bg) 0%, #1e2d3d 100%);
+            border: 1px solid var(--accent-color);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .featured-content h2 {
+            font-size: 1.8rem;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .featured-content p {
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .featured-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .featured-image {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--card-border);
+        }
+
+        .featured-image svg {
+            width: 80px;
+            height: 80px;
+            stroke: var(--accent-color);
+            fill: none;
+            stroke-width: 1;
+            opacity: 0.3;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: var(--sidebar-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--main-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 40px 20px;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .featured-project {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Bar Loading Animation -->
+    <div class="bars-animation" id="loader">
+        <div class="bar" style="--i:1;"></div>
+        <div class="bar" style="--i:2;"></div>
+        <div class="bar" style="--i:3;"></div>
+        <div class="bar" style="--i:4;"></div>
+        <div class="bar" style="--i:5;"></div>
+        <div class="bar" style="--i:6;"></div>
+    </div>
+
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="profile-section">
+                <div class="profile-img">
+                    <img src="assets/profile.jpg" alt="William's Profile Picture">
+                </div>
+                <h2 class="profile-name">William's Portfolio</h2>
+                <p class="profile-tagline">I Hack So You Don't Have To</p>
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="index.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.1L1 12h3v8h6v-6h4v6h6v-8h3L12 2.1zm0 2.2l6 5.4V18h-2v-6h-4v6H8v-8.3l6-5.4z"/>
+                                </svg>
+                            </span>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="about.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                                </svg>
+                            </span>
+                            About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="skills.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.5.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                                </svg>
+                            </span>
+                            Skills
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="projects.html" class="nav-link active" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 3h18v2H3V3zm0 4h18v2H3V7zm0 4h18v2H3v-2zm0 4h12v2H3v-2zm0 4h12v2H3v-2z"/>
+                                </svg>
+                            </span>
+                            Projects
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="resume.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                                </svg>
+                            </span>
+                            Resume
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="services.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.53 19.65l1.34.56v-9.03l-2.43 5.54c-.77 1.76.21 3.79 1.09 4.93zm21.19-4.73L18.12 3.23a2.5 2.5 0 00-3.48-1.15L7.53 6.35c-.92.44-1.57 1.31-1.7 2.32l-.94 8.47c-.12 1.09.48 2.14 1.48 2.6l5.87 2.73c.93.43 2.02.2 2.71-.57l7.3-8.17c.88-.98.99-2.45.27-3.45zm-14.55 5.28c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm0-4c-2.48 0-4.5 2.02-4.5 4.5s2.02 4.5 4.5 4.5 4.5-2.02 4.5-4.5-2.02-4.5-4.5-4.5z"/>
+                                </svg>
+                            </span>
+                            Services
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="blog.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                                </svg>
+                            </span>
+                            Blog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="contact.html" class="nav-link" onclick="showLoader()">
+                            <span class="nav-icon">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                </svg>
+                            </span>
+                            Contact
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="projects-header">
+                <h1>Featured Projects</h1>
+                <p>A collection of my academic and personal projects in cybersecurity, network analysis and software development. Each project represents practical application of skills gained through my Information Security & Forensics studies.</p>
+            </div>
+
+            <div class="projects-grid">
+                <!-- Featured Project -->
+                <div class="project-card featured-project">
+                    <div class="featured-content">
+                        <div class="project-folder">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <h2>Packet Analyzer Tool</h2>
+                        <p>Developed a custom packet analyzer in Python using Scapy to capture and analyze network traffic in real-time. Features include filtering for TCP, UDP and ICMP protocols, extraction of key metadata such as IPs, ports and payloads, and statistical analysis with per-protocol packet counts and bandwidth metrics. Validated accuracy against known network streams in a controlled lab environment.</p>
+                        <div class="featured-stats">
+                            <div class="stat">
+                                <div class="stat-value">25+</div>
+                                <div class="stat-label">Protocols</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">Real</div>
+                                <div class="stat-label">Time</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">100%</div>
+                                <div class="stat-label">Accuracy</div>
+                            </div>
+                        </div>
+                        <div class="project-tags" style="margin-top: 20px;">
+                            <span class="project-tag">Python</span>
+                            <span class="project-tag">Scapy</span>
+                            <span class="project-tag">TCP/IP</span>
+                            <span class="project-tag">Network Analysis</span>
+                        </div>
+                    </div>
+                    <div class="featured-image">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-folder">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="project-link" title="Live Demo">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Link Vulnerability Scanner</h3>
+                    <p class="project-description">A Python-based website vulnerability scanner with a Tkinter GUI, featuring HTML/JavaScript code analysis, SQL Injection and XSS payload testing, and VirusTotal API integration. Successfully detected potential vulnerabilities in simulated test environments.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">Tkinter</span>
+                        <span class="project-tag">VirusTotal API</span>
+                        <span class="project-tag">Security</span>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-folder">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Data Extractor & Backup Tool</h3>
+                    <p class="project-description">A Python-based automation tool to streamline data extraction and secure file backups. Features include error handling, logging, and verification to maintain data integrity. Optimized for flexible use across multiple file types with emphasis on reliability and scalability.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">Automation</span>
+                        <span class="project-tag">Data Integrity</span>
+                        <span class="project-tag">Backup</span>
+                    </div>
+                </div>
+
+                <!-- Project 4 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-folder">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Network Security Assessment</h3>
+                    <p class="project-description">Comprehensive network security assessment using Nmap for port scanning, Wireshark for traffic analysis, and custom Python scripts for vulnerability detection. Identified and documented security weaknesses in simulated enterprise network environments.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Nmap</span>
+                        <span class="project-tag">Wireshark</span>
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">Security Audit</span>
+                    </div>
+                </div>
+
+                <!-- Project 5 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-folder">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Digital Forensics Toolkit</h3>
+                    <p class="project-description">A collection of Python utilities for digital forensics investigation including file recovery tools, metadata extractors, and timeline analysis scripts. Designed for educational purposes in forensic investigation procedures.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Python</span>
+                        <span class="project-tag">Forensics</span>
+                        <span class="project-tag">Data Recovery</span>
+                        <span class="project-tag">OSINT</span>
+                    </div>
+                </div>
+
+                <!-- Project 6 -->
+                <div class="project-card">
+                    <div class="project-header">
+                        <div class="project-folder">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link" title="GitHub">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                    <h3 class="project-title">Android Security Audit App</h3>
+                    <p class="project-description">An Android application developed in Kotlin for basic security auditing of mobile devices. Features include permission analysis, installed app vulnerability scanning, and network security status checking.</p>
+                    <div class="project-tags">
+                        <span class="project-tag">Kotlin</span>
+                        <span class="project-tag">Android Studio</span>
+                        <span class="project-tag">Mobile Security</span>
+                        <span class="project-tag">Java</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Loading animation functions
+        function showLoader() {
+            document.getElementById('loader').classList.remove('hidden');
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').classList.add('hidden');
+        }
+
+        // Hide loader when page loads
+        window.addEventListener('load', function() {
+            setTimeout(hideLoader, 600);
+        });
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !toggle.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
